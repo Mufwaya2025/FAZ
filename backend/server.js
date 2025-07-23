@@ -219,7 +219,7 @@ const userRoutes = require('./src/routes/api/v1/users');
 app.use('/api/v1/users', userRoutes);
 
 // API Routes
-const matchRoutes = require('./src/routes/api/v1/matches');
+const matchRoutes = require('./src/routes/api/v1/matches')(io);
 app.use('/api/v1/matches', matchRoutes);
 
 // Leagues Routes
@@ -244,6 +244,10 @@ app.use('/api/v1/news', newsRoutes);
 // Event Routes
 const eventRoutes = require('./src/routes/api/v1/events');
 app.use('/api/v1/events', eventRoutes);
+
+// Clock Routes
+const clockRoutes = require('./src/routes/api/v1/clock')(io);
+app.use('/api/v1/matches', clockRoutes);
 
 // Data Routes
 const dataRoutes = require('./src/routes/api/dataRoutes.js');

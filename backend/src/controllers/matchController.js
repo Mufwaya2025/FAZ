@@ -96,20 +96,20 @@ const deleteMatch = async (req, res) => {
 };
 
 // Update live match stats
-const updateMatchStats = async (req, res) => {
+const updateMatchStats = async (req, res, io) => {
     const { id } = req.params;
     const stats = req.body;
 
     // Build the dynamic query
     const fields = Object.keys(stats);
     const values = Object.values(stats);
-    const setClauses = fields.map((field, index) => `${field} = $${index + 1}`).join(', ');
+    const setClauses = fields.map((field, index) => `${field} = ${index + 1}`).join(', ');
 
     if (fields.length === 0) {
         return res.status(400).json({ msg: 'No stats provided for update.' });
     }
 
-    const query = `UPDATE matches SET ${setClauses} WHERE id = $${fields.length + 1} RETURNING *`;
+    const query = `UPDATE matches SET ${setClauses} WHERE id = ${fields.length + 1} RETURNING *`;
     const queryParams = [...values, id];
 
     try {
@@ -117,6 +117,7 @@ const updateMatchStats = async (req, res) => {
         if (updatedMatch.rows.length === 0) {
             return res.status(404).json({ msg: 'Match not found' });
         }
+        io.emit('match_updated', updatedMatch.rows[0]);
         res.json(updatedMatch.rows[0]);
     } catch (err) {
         console.error('Error updating match stats:', err);

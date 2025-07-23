@@ -71,12 +71,12 @@ const getLeagueStandings = async (req, res) => {
             team_id: team.id,
             name: team.name,
             played: 0,
-            wins: 0,
-            draws: 0,
-            losses: 0,
-            goals_for: 0,
-            goals_against: 0,
-            goal_difference: 0,
+            won: 0,
+            drawn: 0,
+            lost: 0,
+            goalsFor: 0,
+            goalsAgainst: 0,
+            goalDifference: 0,
             points: 0,
         }));
 
@@ -86,44 +86,47 @@ const getLeagueStandings = async (req, res) => {
 
             if (homeTeam) {
                 homeTeam.played++;
-                homeTeam.goals_for += match.home_score;
-                homeTeam.goals_against += match.away_score;
+                homeTeam.goalsFor += match.home_score;
+                homeTeam.goalsAgainst += match.away_score;
                 if (match.home_score > match.away_score) {
-                    homeTeam.wins++;
+                    homeTeam.won++;
                     homeTeam.points += 3;
                 } else if (match.home_score === match.away_score) {
-                    homeTeam.draws++;
+                    homeTeam.drawn++;
                     homeTeam.points += 1;
                 } else {
-                    homeTeam.losses++;
+                    homeTeam.lost++;
                 }
             }
 
             if (awayTeam) {
                 awayTeam.played++;
-                awayTeam.goals_for += match.away_score;
-                awayTeam.goals_against += match.home_score;
+                awayTeam.goalsFor += match.away_score;
+                awayTeam.goalsAgainst += match.home_score;
                 if (match.away_score > match.home_score) {
-                    awayTeam.wins++;
+                    awayTeam.won++;
                     awayTeam.points += 3;
                 } else if (match.away_score === match.home_score) {
-                    awayTeam.draws++;
+                    awayTeam.drawn++;
                     awayTeam.points += 1;
                 } else {
-                    awayTeam.losses++;
+                    awayTeam.lost++;
                 }
             }
         });
 
         standings.forEach(team => {
-            team.goal_difference = team.goals_for - team.goals_against;
+            team.goalDifference = team.goalsFor - team.goalsAgainst;
         });
 
         standings.sort((a, b) => {
             if (b.points !== a.points) {
                 return b.points - a.points;
             }
-            return b.goal_difference - a.goal_difference;
+            if (b.goalDifference !== a.goalDifference) {
+                return b.goalDifference - a.goalDifference;
+            }
+            return b.goalsFor - a.goalsFor;
         });
 
         res.json(standings);

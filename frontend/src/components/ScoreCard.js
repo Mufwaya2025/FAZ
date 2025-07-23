@@ -10,7 +10,7 @@ function ScoreCard({ match, onClick }) {
       </div>
       <div className="match-score-container">
         <span className="score">{match.home_score} - {match.away_score}</span>
-        <span className="minute">{match.status === 'FINISHED' ? 'FT' : `${match.minute}'`}</span>
+        <span className="minute">{match.status === 'FINISHED' ? 'FT' : `${match.minute || 0}'`}</span>
       </div>
       <div className="team-info">
         <img src={match.away_team_logo || 'https://via.placeholder.com/40'} alt={match.away_team_name} />

@@ -6,6 +6,8 @@ function StandingsView({ leagueId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log("Received leagueId in StandingsView:", leagueId); // Debugging line
+
   useEffect(() => {
     const fetchStandings = async () => {
       try {
@@ -41,6 +43,19 @@ function StandingsView({ leagueId }) {
     return <div>Error: {error}</div>;
   }
 
+  const getRowClass = (index) => {
+    if (index < 2) {
+      return 'champions-league';
+    }
+    if (index < 4) {
+      return 'confederation-cup';
+    }
+    if (index >= standings.length - 3) {
+      return 'relegation';
+    }
+    return '';
+  };
+
   return (
     <div className="standings-container">
       <h3>League Standings</h3>
@@ -61,16 +76,16 @@ function StandingsView({ leagueId }) {
         </thead>
         <tbody>
           {standings.map((team, index) => (
-            <tr key={team.team_id}>
+            <tr key={team.team_id} className={getRowClass(index)}>
               <td>{index + 1}</td>
               <td>{team.name}</td>
               <td>{team.played}</td>
-              <td>{team.wins}</td>
-              <td>{team.draws}</td>
-              <td>{team.losses}</td>
-              <td>{team.goals_for}</td>
-              <td>{team.goals_against}</td>
-              <td>{team.goal_difference}</td>
+              <td>{team.won}</td>
+              <td>{team.drawn}</td>
+              <td>{team.lost}</td>
+              <td>{team.goalsFor}</td>
+              <td>{team.goalsAgainst}</td>
+              <td>{team.goalDifference}</td>
               <td>{team.points}</td>
             </tr>
           ))}

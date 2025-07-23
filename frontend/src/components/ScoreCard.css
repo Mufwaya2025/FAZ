@@ -2,25 +2,29 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(17, 24, 39, 0.6);
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 10px;
+  background: var(--background-secondary);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: var(--spacing-sm);
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .score-card-container:hover {
-  background-color: rgba(30, 41, 59, 0.8);
+  background-color: var(--background-tertiary);
   transform: translateY(-2px);
 }
 
 .team-info {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: var(--spacing-md);
   width: 40%;
+}
+
+.team-info:last-child {
+  justify-content: flex-end;
 }
 
 .team-info img {
@@ -30,21 +34,22 @@
 }
 
 .team-info span {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
 }
 
 .match-score-container {
   text-align: center;
+  min-width: 100px;
 }
 
 .score {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-bold);
 }
 
 .minute {
   display: block;
-  font-size: 14px;
-  color: #94a3b8;
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
 }

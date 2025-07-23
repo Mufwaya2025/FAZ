@@ -3,13 +3,18 @@ import PublicMatchDetails from './PublicMatchDetails';
 import StandingsView from './StandingsView';
 import ScoreCard from './ScoreCard';
 import './PublicView.css';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:5001');
 
 function PublicView() {
   const [activeTab, setActiveTab] = useState('SCORES');
   const [activeFilter, setActiveFilter] = useState('ALL');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [matches, setMatches] = useState([]);
+  const [teams, setTeams] = useState([]);
   const [leagues, setLeagues] = useState([]);
+  const [events, setEvents] = useState([]);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [selectedLeague, setSelectedLeague] = useState('');
 
@@ -19,12 +24,26 @@ function PublicView() {
         const response = await fetch('http://localhost:5001/api/v1/matches');
         const data = await response.json();
         if (response.ok) {
+          console.log("Fetched matches in PublicView:", data); // Debugging line
           setMatches(data);
         } else {
           console.error('Failed to fetch matches:', data.msg);
         }
       } catch (error) {
         console.error('Error fetching matches:', error);
+      }
+    };
+    const fetchTeams = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/v1/teams');
+        const data = await response.json();
+        if (response.ok) {
+          setTeams(data);
+        } else {
+          console.error('Failed to fetch teams:', data.msg);
+        }
+      } catch (error) {
+        console.error('Error fetching teams:', error);
       }
     };
     const fetchLeagues = async () => {
@@ -40,6 +59,7 @@ function PublicView() {
           setLeagues(data);
           if (data.length > 0) {
             setSelectedLeague(data[0].id);
+            console.log("Selected league ID in PublicView:", data[0].id); // Debugging line
           }
         } else {
           console.error('Failed to fetch leagues:', data.msg);
@@ -48,9 +68,50 @@ function PublicView() {
         console.error('Error fetching leagues:', error);
       }
     };
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/v1/events');
+        const data = await response.json();
+        if (response.ok) {
+          setEvents(data);
+        } else {
+          console.error('Failed to fetch events:', data.msg);
+        }
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
     fetchMatches();
+    fetchTeams();
     fetchLeagues();
+    fetchEvents();
+
+    socket.on('match_updated', (updatedMatch) => {
+      setMatches(prevMatches => {
+        const index = prevMatches.findIndex(m => m.id === updatedMatch.id);
+        if (index !== -1) {
+          const newMatches = [...prevMatches];
+          newMatches[index] = updatedMatch;
+          return newMatches;
+        }
+        return prevMatches;
+      });
+    });
+
+    return () => {
+      socket.off('match_updated');
+    };
   }, []);
+
+  const getTeamName = (teamId) => {
+    const team = teams.find(t => t.id === teamId);
+    return team ? team.name : 'Unknown Team';
+  };
+
+  const getTeamLogo = (teamId) => {
+    const team = teams.find(t => t.id === teamId);
+    return team ? `http://localhost:5001${team.logo_url}` : '';
+  };
 
   const filters = ['ALL', 'LIVE', 'FINISHED', 'SCHEDULED'];
   
@@ -77,7 +138,14 @@ function PublicView() {
   });
 
   if (selectedMatch) {
-    return <PublicMatchDetails match={selectedMatch} onBack={() => setSelectedMatch(null)} />;
+    return <PublicMatchDetails match={{
+      ...selectedMatch,
+      home_team_name: getTeamName(selectedMatch.home_team_id),
+      away_team_name: getTeamName(selectedMatch.away_team_id),
+      home_team_logo: getTeamLogo(selectedMatch.home_team_id),
+      away_team_logo: getTeamLogo(selectedMatch.away_team_id),
+      events: events.filter(e => e.match_id === selectedMatch.id),
+    }} onBack={() => setSelectedMatch(null)} />;
   }
 
   return (
@@ -113,7 +181,13 @@ function PublicView() {
             </div>
           ) : (
             filteredMatches.map(match => (
-              <ScoreCard key={match.id} match={match} onClick={setSelectedMatch} />
+              <ScoreCard key={match.id} match={{
+                ...match,
+                home_team_name: getTeamName(match.home_team_id),
+                away_team_name: getTeamName(match.away_team_id),
+                home_team_logo: getTeamLogo(match.home_team_id),
+                away_team_logo: getTeamLogo(match.away_team_id),
+              }} onClick={setSelectedMatch} />
             ))
           )}
         </>

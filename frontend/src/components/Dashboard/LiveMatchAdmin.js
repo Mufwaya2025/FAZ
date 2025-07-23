@@ -404,13 +404,18 @@ function LiveMatchAdmin({ matchData, onBack }) {
   };
 
   const handleClockAction = async (action) => {
+    console.log(`Clock action triggered: ${action}`);
     let half;
+    let url = `http://localhost:5001/api/v1/matches/${matchData.id}/${action}`;
+    let body = {};
+
     switch(action) {
-      case 'start_first_half':
-        half = 'first';
+      case 'start-clock':
+        half = firstHalfStartTime ? 'second' : 'first';
+        body = { half };
         break;
-      case 'start_second_half':
-        half = 'second';
+      case 'end-half':
+        body = { stoppage_time_seconds: stoppageTime };
         break;
       default:
         break;
@@ -418,16 +423,17 @@ function LiveMatchAdmin({ matchData, onBack }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5001/api/v1/matches/${matchData.id}/${action}`, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-auth-token': token,
         },
-        body: JSON.stringify({ half, stoppage_time_seconds: stoppageTime }),
+        body: JSON.stringify(body),
       });
       const data = await response.json();
       if (response.ok) {
+        console.log("Clock action successful:", data);
         setMatchStatus(data.status);
         if (data.first_half_start_time) setFirstHalfStartTime(new Date(data.first_half_start_time));
         if (data.second_half_start_time) setSecondHalfStartTime(new Date(data.second_half_start_time));
@@ -515,10 +521,9 @@ function LiveMatchAdmin({ matchData, onBack }) {
         <div className="control-card">
           <h4>Match Clock</h4>
           <div className="clock-controls">
-            <button onClick={() => handleClockAction('start_first_half')} disabled={matchStatus !== 'SCHEDULED'}><Play /> Start 1st Half</button>
-            <button onClick={() => handleClockAction('end_half')} disabled={matchStatus !== 'LIVE'}><Pause /> End Half</button>
-            <button onClick={() => handleClockAction('start_second_half')} disabled={matchStatus !== 'HALF-TIME'}><Play /> Start 2nd Half</button>
-            <button onClick={() => handleClockAction('end_match')} disabled={matchStatus !== 'LIVE'}><Square /> End Match</button>
+            <button onClick={() => handleClockAction('start-clock')} disabled={matchStatus !== 'SCHEDULED' && matchStatus !== 'HALF-TIME'}><Play /> {matchStatus === 'SCHEDULED' ? 'Start 1st Half' : 'Start 2nd Half'}</button>
+            <button onClick={() => handleClockAction('end-half')} disabled={matchStatus !== 'LIVE'}><Pause /> End Half</button>
+            <button onClick={() => handleClockAction('end-match')} disabled={matchStatus !== 'LIVE'}><Square /> End Match</button>
             <input type="number" value={stoppageTime} onChange={(e) => setStoppageTime(e.target.value)} placeholder="Stoppage Time" />
           </div>
         </div>

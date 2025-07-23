@@ -4,8 +4,8 @@ const { auth, authorize } = require('../../../middleware/auth');
 
 const router = express.Router();
 
-// Get all leagues (accessible to all authenticated users)
-router.get('/', auth, leagueController.getLeagues);
+// Get all leagues (publicly accessible)
+router.get('/', leagueController.getLeagues);
 
 // Create a new league (accessible only to super_admin)
 router.post('/', auth, authorize(['super_admin']), leagueController.createLeague);
@@ -16,7 +16,7 @@ router.put('/:id', auth, authorize(['super_admin']), leagueController.updateLeag
 // Delete a league (accessible only to super_admin)
 router.delete('/:id', auth, authorize(['super_admin']), leagueController.deleteLeague);
 
-// Get league standings (accessible to all authenticated users)
-router.get('/:id/standings', auth, leagueController.getLeagueStandings);
+// Get league standings (publicly accessible)
+router.get('/:id/standings', leagueController.getLeagueStandings);
 
 module.exports = router;
