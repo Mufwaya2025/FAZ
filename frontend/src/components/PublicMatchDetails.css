@@ -1,0 +1,147 @@
+.match-details-container {
+  padding: 20px;
+  color: #e2e8f0;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.details-back-button {
+  background: rgba(100, 116, 139, 0.2);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 20px;
+  transition: background-color 0.3s;
+}
+
+.details-back-button:hover {
+  background: rgba(100, 116, 139, 0.4);
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: rgba(17, 24, 39, 0.6);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+}
+
+.details-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 150px;
+}
+
+.details-team img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.details-team h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+.details-score-info {
+  text-align: center;
+}
+
+.details-minute {
+  font-size: 16px;
+  color: #94a3b8;
+  margin-bottom: 5px;
+}
+
+.details-score {
+  font-size: 42px;
+  font-weight: 700;
+}
+
+.stats-and-events {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 20px;
+}
+
+.details-stats, .details-events {
+  background: rgba(17, 24, 39, 0.6);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.details-stats h3, .details-events h3 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 16px;
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  color: #94a3b8;
+}
+
+.event-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.event-item:last-child {
+  border-bottom: none;
+}
+
+.event-minute {
+  font-weight: 600;
+  color: #94a3b8;
+  min-width: 30px;
+}
+
+.event-icon {
+  color: #e2e8f0;
+}
+
+.event-details .player-in {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.event-details .player-out {
+  color: #fb7185;
+  text-decoration: line-through;
+}

@@ -1,0 +1,142 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.goal-modal-content {
+  background: rgba(30, 41, 59, 0.8);
+  padding: 30px;
+  border-radius: 12px;
+  color: #e2e8f0;
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-title {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+  color: #f8fafc;
+}
+
+.modal-team-name {
+  font-size: 16px;
+  text-align: center;
+  margin: -15px 0 0 0;
+  color: #94a3b8;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.player-select {
+  background-color: rgba(51, 65, 85, 0.7);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.form-group-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.own-goal-checkbox {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.own-goal-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  color: #e2e8f0;
+}
+
+.checkbox-custom {
+  width: 20px;
+  height: 20px;
+  background-color: rgba(51, 65, 85, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin-right: 12px;
+  display: inline-block;
+  transition: background-color 0.2s;
+}
+
+.own-goal-checkbox:checked + .own-goal-label .checkbox-custom {
+  background-color: #38bdf8;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.modal-button {
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.modal-button:hover {
+  transform: translateY(-2px);
+}
+
+.cancel-button {
+  background-color: rgba(100, 116, 139, 0.5);
+  color: #e2e8f0;
+}
+
+.confirm-button {
+  background-color: #22c55e;
+  color: #fff;
+}

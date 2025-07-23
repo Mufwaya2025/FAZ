@@ -1,0 +1,33 @@
+name: faz_football_scores_mobile
+description: A real-time football scores platform for FAZ.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  firebase_core: ^2.15.0
+  firebase_messaging: ^14.6.5
+  flutter_tts: ^3.8.0 # For Google Text-to-Speech
+  sqflite: ^2.2.8+4 # For local SQLite database
+  path_provider: ^2.0.15 # For getting paths for local storage
+  shared_preferences: ^2.2.0 # For simple key-value storage
+  flutter_local_notifications: ^15.1.0+1 # For local notifications
+  flutter_redux: ^0.10.0 # For Redux state management
+  redux: ^5.0.0 # For Redux state management
+  redux_thunk: ^0.4.0 # For Redux async actions
+  http: ^1.1.0 # For making HTTP requests
+  intl: ^0.18.1 # For internationalization and localization
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true

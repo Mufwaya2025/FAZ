@@ -1,0 +1,14 @@
+.sub-modal-content {
+  background: rgba(30, 41, 59, 0.8);
+  padding: 30px;
+  border-radius: 12px;
+  color: #e2e8f0;
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  animation: slideIn 0.4s ease-out;
+}

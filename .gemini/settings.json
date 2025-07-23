@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "react-mcp": {
+      "command": "node",
+      "args": [
+        "C:/Users/kalip/OneDrive/Desktop/react-mcp/index.js"
+      ]
+    },
+    "nodeServer": {
+      "command": "node",
+      "args": ["dist/server.js", "--verbose"],
+      "cwd": "./mcp-servers/node",
+      "trust": true
+    },
+    "pythonTools": {
+      "command": "python",
+      "args": ["-m", "my_mcp_server", "--port", "8080"],
+      "cwd": "./mcp-servers/python",
+      "env": {
+        "DATABASE_URL": "$DB_CONNECTION_STRING",
+        "API_KEY": "${EXTERNAL_API_KEY}"
+      },
+      "timeout": 15000
+    }
+  }
+}

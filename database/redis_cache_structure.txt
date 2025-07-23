@@ -1,0 +1,4 @@
+live-scores:{matchId} -> JSON match data
+league-standings:{leagueId} -> JSON standings
+user-favorites:{userId} -> JSON array of team IDs
+news-feed -> JSON array of latest news

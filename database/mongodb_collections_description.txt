@@ -1,0 +1,42 @@
+// Match Commentary
+{
+  matchId: ObjectId,
+  events: [
+    {
+      minute: Number,
+      type: String, // "goal", "yellow_card", "substitution"
+      player: String,
+      team: String,
+      description: String,
+      timestamp: Date
+    }
+  ]
+}
+
+// User Activity Logs
+{
+  userId: ObjectId,
+  action: String,
+  metadata: Object,
+  timestamp: Date,
+  sessionId: String
+}
+
+// Analytics Data
+{
+  matchId: ObjectId,
+  teamStats: {
+    possession: Number,
+    shots: Number,
+    corners: Number,
+    fouls: Number
+  },
+  playerStats: [
+    {
+      playerId: ObjectId,
+      goals: Number,
+      assists: Number,
+      rating: Number
+    }
+  ]
+}
