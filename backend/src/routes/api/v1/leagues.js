@@ -16,4 +16,7 @@ router.put('/:id', auth, authorize(['super_admin']), leagueController.updateLeag
 // Delete a league (accessible only to super_admin)
 router.delete('/:id', auth, authorize(['super_admin']), leagueController.deleteLeague);
 
+// Get league standings (accessible to all authenticated users)
+router.get('/:id/standings', auth, leagueController.getLeagueStandings);
+
 module.exports = router;

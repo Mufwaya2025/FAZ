@@ -100,23 +100,9 @@
   color: #f8fafc;
 }
 
-.goal-scorers-list {
-  margin-top: 15px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  align-items: center;
-}
-
-.goal-scorer-item {
-  font-size: 14px;
-  color: #cbd5e1;
-}
-
 .match-controls {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 25px;
   margin-bottom: 30px;
 }
@@ -127,6 +113,44 @@
   border-radius: 10px;
   text-align: center;
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.clock-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.clock-controls button {
+  background-color: rgba(51, 65, 85, 0.7);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.clock-controls button:disabled {
+  background-color: rgba(51, 65, 85, 0.3);
+  cursor: not-allowed;
+}
+
+.clock-controls input {
+  grid-column: span 2;
+  background-color: rgba(51, 65, 85, 0.7);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  text-align: center;
 }
 
 .possession-timer-container {
@@ -269,27 +293,53 @@
   margin-bottom: 20px;
 }
 
-.substitution-history-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+.events-feed {
+  height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
 }
 
-.substitution-history-column h4 {
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-.substitution-history-column ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.substitution-history-column li {
+.event-item-admin {
   display: flex;
-  gap: 10px;
-  margin-bottom: 5px;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background-color: rgba(51, 65, 85, 0.3);
+  border-left: 4px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.event-item-admin:hover {
+  background-color: rgba(51, 65, 85, 0.6);
+}
+
+.event-item-admin.home {
+  border-left-color: #38bdf8;
+}
+
+.event-item-admin.away {
+  border-left-color: #fb7185;
+}
+
+.event-icon-admin {
+  color: #e2e8f0;
+}
+
+.event-minute-admin {
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.event-details-admin {
+  font-size: 16px;
+}
+
+.event-details-admin strong {
+  font-weight: 600;
+  color: #f8fafc;
 }
 
 .player-out {
@@ -299,4 +349,64 @@
 
 .player-in {
   color: #22c55e;
+}
+
+.commentary-container {
+  margin-top: 30px;
+  background: rgba(17, 24, 39, 0.6);
+  padding: 25px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.commentary-container h3 {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.commentary-feed {
+  height: 200px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.commentary-item {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.commentary-input-area {
+  display: flex;
+  gap: 10px;
+}
+
+.commentary-input-area input {
+  flex-grow: 1;
+  background-color: rgba(51, 65, 85, 0.7);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.commentary-input-area button {
+  background-color: #38bdf8;
+  color: #fff;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.commentary-input-area button:hover {
+  background-color: #0ea5e9;
 }

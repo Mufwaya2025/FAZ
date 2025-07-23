@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import './LeagueManagement.css';
+import { Edit, Trash2 } from 'lucide-react';
 
 function LeagueManagement() {
   const [leagues, setLeagues] = useState([]);
@@ -167,50 +169,31 @@ function LeagueManagement() {
   }, []);
 
   return (
-    <div style={{ backgroundColor: '#34495e', padding: '20px', borderRadius: '8px', color: 'white' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="league-management-container">
+      <div className="header">
         <h3>League Management</h3>
         <button 
           onClick={() => setShowCreateForm(!showCreateForm)}
-          style={{ 
-            backgroundColor: '#28a745', 
-            color: 'white', 
-            border: 'none', 
-            padding: '8px 15px', 
-            borderRadius: '4px', 
-            cursor: 'pointer' 
-          }}
+          className="create-button"
         >
           {showCreateForm ? 'Cancel' : 'Create League'}
         </button>
       </div>
 
       {showCreateForm && (
-        <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px', backgroundColor: '#2c3e50', padding: '20px', borderRadius: '8px' }}>
+        <div className="form-container">
           <h4>Create New League</h4>
           <input 
             type="text" 
             placeholder="League Name" 
             value={newLeagueName} 
             onChange={(e) => setNewLeagueName(e.target.value)} 
-            style={{ 
-              padding: '10px', 
-              borderRadius: '4px', 
-              border: '1px solid #4a5568', 
-              backgroundColor: '#34495e',
-              color: 'white'
-            }} 
+            className="form-input"
           />
           <select
             value={newLeagueCountry}
             onChange={(e) => setNewLeagueCountry(e.target.value)}
-            style={{
-              padding: '10px',
-              borderRadius: '4px',
-              border: '1px solid #4a5568',
-              backgroundColor: '#34495e',
-              color: 'white'
-            }}
+            className="form-select"
           >
             <option value="">Select Country</option>
             {countries.map(country => (
@@ -220,13 +203,7 @@ function LeagueManagement() {
           <select
             value={newLeagueSeason}
             onChange={(e) => setNewLeagueSeason(e.target.value)}
-            style={{
-              padding: '10px',
-              borderRadius: '4px',
-              border: '1px solid #4a5568',
-              backgroundColor: '#34495e',
-              color: 'white'
-            }}
+            className="form-select"
           >
             <option value="">Select Season</option>
             {seasons.map(season => (
@@ -235,41 +212,35 @@ function LeagueManagement() {
           </select>
           <button 
             onClick={handleCreateLeague}
-            style={{ 
-              backgroundColor: '#28a745', 
-              color: 'white', 
-              border: 'none', 
-              padding: '10px 15px', 
-              borderRadius: '4px', 
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
+            className="submit-button"
           >
             Submit
           </button>
         </div>
       )}
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+      <table className="leagues-table">
         <thead>
           <tr>
-            <th style={{ border: '1px solid #4a5568', padding: '8px', textAlign: 'left' }}>ID</th>
-            <th style={{ border: '1px solid #4a5568', padding: '8px', textAlign: 'left' }}>Name</th>
-            <th style={{ border: '1px solid #4a5568', padding: '8px', textAlign: 'left' }}>Country</th>
-            <th style={{ border: '1px solid #4a5568', padding: '8px', textAlign: 'left' }}>Season</th>
-            <th style={{ border: '1px solid #4a5568', padding: '8px', textAlign: 'left' }}>Actions</th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Country</th>
+            <th>Season</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {leagues.map(league => (
             <tr key={league.id}>
-              <td style={{ border: '1px solid #4a5568', padding: '8px' }}>{league.id}</td>
-              <td style={{ border: '1px solid #4a5568', padding: '8px' }}>{league.name}</td>
-              <td style={{ border: '1px solid #4a5568', padding: '8px' }}>{league.country}</td>
-              <td style={{ border: '1px solid #4a5568', padding: '8px' }}>{league.season}</td>
-              <td style={{ border: '1px solid #4a5568', padding: '8px' }}>
-                <button onClick={() => handleEditLeague(league)} style={{ backgroundColor: '#3498db', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer', marginRight: '5px' }}>Edit</button>
-                <button onClick={() => handleDeleteLeague(league.id)} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
+              <td>{league.id}</td>
+              <td>{league.name}</td>
+              <td>{league.country}</td>
+              <td>{league.season}</td>
+              <td>
+                <div className="action-buttons">
+                  <button onClick={() => handleEditLeague(league)} className="action-button edit-button"><Edit size={16} /></button>
+                  <button onClick={() => handleDeleteLeague(league.id)} className="action-button delete-button"><Trash2 size={16} /></button>
+                </div>
               </td>
             </tr>
           ))}
@@ -277,52 +248,20 @@ function LeagueManagement() {
       </table>
 
       {editingLeague && (
-        <div style={{
-          position: 'fixed',
-          top: '0',
-          left: '0',
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: '1000'
-        }}>
-          <div style={{
-            backgroundColor: '#34495e',
-            padding: '20px',
-            borderRadius: '8px',
-            color: 'white',
-            width: '400px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '15px'
-          }}>
+        <div className="modal-overlay">
+          <div className="form-container" style={{ maxWidth: '400px' }}>
             <h4>Edit League: {editingLeague.name}</h4>
             <input 
               type="text" 
               placeholder="League Name" 
               value={editedLeagueName} 
               onChange={(e) => setEditedLeagueName(e.target.value)} 
-              style={{ 
-                padding: '10px', 
-                borderRadius: '4px', 
-                border: '1px solid #4a5568', 
-                backgroundColor: '#2c3e50',
-                color: 'white'
-              }} 
+              className="form-input"
             />
             <select
               value={editedLeagueCountry}
               onChange={(e) => setEditedLeagueCountry(e.target.value)}
-              style={{
-                padding: '10px',
-                borderRadius: '4px',
-                border: '1px solid #4a5568',
-                backgroundColor: '#2c3e50',
-                color: 'white'
-              }}
+              className="form-select"
             >
               <option value="">Select Country</option>
               {countries.map(country => (
@@ -332,13 +271,7 @@ function LeagueManagement() {
             <select
               value={editedLeagueSeason}
               onChange={(e) => setEditedLeagueSeason(e.target.value)}
-              style={{
-                padding: '10px',
-                borderRadius: '4px',
-                border: '1px solid #4a5568',
-                backgroundColor: '#2c3e50',
-                color: 'white'
-              }}
+              className="form-select"
             >
               <option value="">Select Season</option>
               {seasons.map(season => (
@@ -348,27 +281,13 @@ function LeagueManagement() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
               <button 
                 onClick={() => setEditingLeague(null)}
-                style={{ 
-                  backgroundColor: '#e74c3c', 
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '8px 15px', 
-                  borderRadius: '4px', 
-                  cursor: 'pointer' 
-                }}
+                className="action-button delete-button"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleUpdateLeague}
-                style={{ 
-                  backgroundColor: '#28a745', 
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '8px 15px', 
-                  borderRadius: '4px', 
-                  cursor: 'pointer' 
-                }}
+                className="action-button edit-button"
               >
                 Save Changes
               </button>

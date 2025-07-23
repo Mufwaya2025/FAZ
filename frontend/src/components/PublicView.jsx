@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import PublicMatchDetails from './PublicMatchDetails';
+import StandingsView from './StandingsView';
+import ScoreCard from './ScoreCard';
+import './PublicView.css';
 
 function PublicView() {
+  const [activeTab, setActiveTab] = useState('SCORES');
   const [activeFilter, setActiveFilter] = useState('ALL');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [matches, setMatches] = useState([]);
+  const [leagues, setLeagues] = useState([]);
   const [selectedMatch, setSelectedMatch] = useState(null);
+  const [selectedLeague, setSelectedLeague] = useState('');
 
   useEffect(() => {
     const fetchMatches = async () => {
@@ -21,7 +27,29 @@ function PublicView() {
         console.error('Error fetching matches:', error);
       }
     };
+    const fetchLeagues = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5001/api/v1/leagues', {
+          headers: {
+            'x-auth-token': token,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setLeagues(data);
+          if (data.length > 0) {
+            setSelectedLeague(data[0].id);
+          }
+        } else {
+          console.error('Failed to fetch leagues:', data.msg);
+        }
+      } catch (error) {
+        console.error('Error fetching leagues:', error);
+      }
+    };
     fetchMatches();
+    fetchLeagues();
   }, []);
 
   const filters = ['ALL', 'LIVE', 'FINISHED', 'SCHEDULED'];
@@ -53,108 +81,55 @@ function PublicView() {
   }
 
   return (
-    <React.Fragment>
-      <div style={{ 
-        display: 'flex',
-        gap: '0px',
-        marginBottom: '20px',
-        backgroundColor: '#34495e',
-        borderRadius: '8px',
-        padding: '4px'
-      }}>
-        {filters.map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setActiveFilter(filter)}
-            style={{
-              flex: 1,
-              padding: '12px 20px',
-              backgroundColor: activeFilter === filter ? '#3498db' : 'transparent',
-              color: 'white',
-              border: 'none',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {filter}
-          </button>
-        ))}
+    <div className="public-view-container">
+      <div className="tabs">
+        <button onClick={() => setActiveTab('SCORES')} className={`tab-button ${activeTab === 'SCORES' ? 'active' : ''}`}>Scores</button>
+        <button onClick={() => setActiveTab('STANDINGS')} className={`tab-button ${activeTab === 'STANDINGS' ? 'active' : ''}`}>Standings</button>
       </div>
 
-      {/* Date Navigation */}
-      <div style={{ 
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '20px',
-        marginBottom: '20px',
-        backgroundColor: '#34495e',
-        padding: '12px',
-        borderRadius: '8px'
-      }}>
-        <button
-          onClick={() => navigateDate(-1)}
-          style={{
-            backgroundColor: '#4a5568',
-            color: 'white',
-            border: 'none',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '16px'
-          }}
-        >
-          ←
-        </button>
-        <span style={{ 
-          fontSize: '16px',
-          fontWeight: 'bold',
-          color: 'white'
-        }}>
-          {formatDate(currentDate)}
-        </span>
-        <button
-          onClick={() => navigateDate(1)}
-          style={{
-            backgroundColor: '#4a5568',
-            color: 'white',
-            border: 'none',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '16px'
-          }}
-        >
-          →
-        </button>
-      </div>
-
-      {filteredMatches.length === 0 ? (
-        <div style={{
-          backgroundColor: '#34495e',
-          padding: '40px',
-          borderRadius: '8px',
-          textAlign: 'center',
-          color: '#95a5a6'
-        }}>
-          No matches found for the selected criteria.
-        </div>
-      ) : (
-        filteredMatches.map(match => (
-          <div key={match.id} onClick={() => setSelectedMatch(match)} style={{
-            backgroundColor: '#34495e',
-            padding: '20px',
-            borderRadius: '8px',
-            marginBottom: '10px',
-            cursor: 'pointer'
-          }}>
-            {match.home_team_name} vs {match.away_team_name}
+      {activeTab === 'SCORES' && (
+        <>
+          <div className="filters">
+            {filters.map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setActiveFilter(filter)}
+                className={`filter-button ${activeFilter === filter ? 'active' : ''}`}
+              >
+                {filter}
+              </button>
+            ))}
           </div>
-        ))
+
+          <div className="date-navigation">
+            <button onClick={() => navigateDate(-1)} className="nav-button">←</button>
+            <span className="date-display">{formatDate(currentDate)}</span>
+            <button onClick={() => navigateDate(1)} className="nav-button">→</button>
+          </div>
+
+          {filteredMatches.length === 0 ? (
+            <div className="no-matches">
+              No matches found for the selected criteria.
+            </div>
+          ) : (
+            filteredMatches.map(match => (
+              <ScoreCard key={match.id} match={match} onClick={setSelectedMatch} />
+            ))
+          )}
+        </>
       )}
-    </React.Fragment>
+
+      {activeTab === 'STANDINGS' && (
+        <div>
+          <select onChange={(e) => setSelectedLeague(e.target.value)} value={selectedLeague} className="league-select">
+            {leagues.map(league => (
+              <option key={league.id} value={league.id}>{league.name}</option>
+            ))}
+          </select>
+          <StandingsView leagueId={selectedLeague} />
+        </div>
+      )}
+    </div>
   );
 }
 

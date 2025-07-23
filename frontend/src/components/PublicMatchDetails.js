@@ -1,8 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './PublicMatchDetails.css';
 import { Shield, Star, CornerRightUp, RectangleVertical, RectangleHorizontal, X, Flag, ArrowRightLeft } from 'lucide-react';
 
 function PublicMatchDetails({ match, onBack }) {
+  const [commentary, setCommentary] = useState([]);
+
+  useEffect(() => {
+    const fetchCommentary = async () => {
+      try {
+        const response = await fetch(`http://localhost:5001/api/v1/matches/${match.id}/commentary`);
+        const data = await response.json();
+        if (response.ok) {
+          setCommentary(data);
+        } else {
+          console.error('Failed to fetch commentary:', data.msg);
+        }
+      } catch (error) {
+        console.error('Error fetching commentary:', error);
+      }
+    };
+
+    if (match.id) {
+      fetchCommentary();
+    }
+  }, [match.id]);
+
   if (!match) {
     return null;
   }
@@ -39,9 +61,10 @@ function PublicMatchDetails({ match, onBack }) {
   const awayPossessionPercent = 100 - homePossessionPercent;
 
   const events = [
-    ...goal_scorers.map(g => ({ ...g, type: 'goal' })),
-    ...substitutions.map(s => ({ ...s, type: 'substitution' }))
-  ].sort((a, b) => (a.minute_scored || a.minute_substituted) - (b.minute_scored || b.minute_substituted));
+    ...goal_scorers.map(g => ({ ...g, type: 'goal', minute: g.minute_scored })),
+    ...substitutions.map(s => ({ ...s, type: 'substitution', minute: s.minute_substituted })),
+    ...(match.events || []).map(e => ({ ...e, type: e.event_type, minute: e.minute_of_event }))
+  ].sort((a, b) => a.minute - b.minute);
 
   return (
     <div className="match-details-container">
@@ -107,10 +130,17 @@ function PublicMatchDetails({ match, onBack }) {
           <ul className="event-timeline">
             {events.map(event => (
               <li key={`${event.type}-${event.id}`} className="event-item">
-                <div className="event-minute">{event.minute_scored || event.minute_substituted}'</div>
+                <div className="event-minute">{event.minute}'</div>
                 <div className="event-icon">
                   {event.type === 'goal' && <Star size={18} />}
                   {event.type === 'substitution' && <ArrowRightLeft size={18} />}
+                  {event.type === 'yellow_card' && <RectangleVertical size={18} />}
+                  {event.type === 'red_card' && <RectangleHorizontal size={18} />}
+                  {event.type === 'shot_on_target' && <Shield size={18} />}
+                  {event.type === 'shot_off_target' && <Shield size={18} />}
+                  {event.type === 'corner' && <CornerRightUp size={18} />}
+                  {event.type === 'foul' && <X size={18} />}
+                  {event.type === 'offside' && <Flag size={18} />}
                 </div>
                 <div className="event-details">
                   {event.type === 'goal' && (
@@ -121,11 +151,26 @@ function PublicMatchDetails({ match, onBack }) {
                       <strong className="player-in">{event.player_in_name}</strong> replaces <span className="player-out">{event.player_out_name}</span>.
                     </span>
                   )}
+                  {event.type !== 'goal' && event.type !== 'substitution' && (
+                    <span>{event.event_type.replace('_', ' ')} by <strong>{event.player_name}</strong>.</span>
+                  )}
                 </div>
               </li>
             ))}
           </ul>
         </div>
+      </div>
+
+      <div className="details-commentary">
+        <h3>Live Commentary</h3>
+        <ul className="commentary-timeline">
+          {commentary.map(comment => (
+            <li key={comment.id} className="commentary-item-public">
+              <div className="commentary-minute">{comment.minute}'</div>
+              <div className="commentary-text">{comment.commentary_text}</div>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

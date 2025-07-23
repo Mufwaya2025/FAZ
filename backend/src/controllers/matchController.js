@@ -3,7 +3,7 @@ const db = require('../utils/database');
 // Get all matches
 const getMatches = async (req, res) => {
     try {
-        const { rows } = await db.query('SELECT id, home_team_id, away_team_id, league_id, match_date, venue, status, home_score, away_score, minute, admin_id, home_yellow_cards, away_yellow_cards, home_corners, away_corners, home_shots, away_shots, home_shots_on_target, away_shots_on_target, possession, last_goal_scorer, last_goal_assist FROM matches');
+        const { rows } = await db.query('SELECT * FROM matches');
         res.json(rows);
     } catch (err) {
         console.error(err.message);
@@ -32,6 +32,12 @@ const getMatchDetails = async (req, res) => {
             [id]
         );
         match.substitutions = substitutionsRes.rows;
+
+        const eventsRes = await db.query(
+            'SELECT me.*, p.name as player_name FROM match_events me JOIN players p ON me.player_id = p.id WHERE me.match_id = $1 ORDER BY me.minute_of_event',
+            [id]
+        );
+        match.events = eventsRes.rows;
 
         res.json(match);
     } catch (err) {
@@ -97,13 +103,13 @@ const updateMatchStats = async (req, res) => {
     // Build the dynamic query
     const fields = Object.keys(stats);
     const values = Object.values(stats);
-    const setClauses = fields.map((field, index) => `${field} = ${index + 1}`).join(', ');
+    const setClauses = fields.map((field, index) => `${field} = $${index + 1}`).join(', ');
 
     if (fields.length === 0) {
         return res.status(400).json({ msg: 'No stats provided for update.' });
     }
 
-    const query = `UPDATE matches SET ${setClauses} WHERE id = ${fields.length + 1} RETURNING *`;
+    const query = `UPDATE matches SET ${setClauses} WHERE id = $${fields.length + 1} RETURNING *`;
     const queryParams = [...values, id];
 
     try {
@@ -167,6 +173,91 @@ const addSubstitution = async (req, res) => {
     }
 };
 
+// Add a generic match event
+const addMatchEvent = async (req, res) => {
+    const { id } = req.params;
+    const { team_id, player_id, minute_of_event, event_type, commentary } = req.body;
+
+    try {
+        const newEvent = await db.query(
+            'INSERT INTO match_events (match_id, team_id, player_id, minute_of_event, event_type, commentary) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            [id, team_id, player_id, minute_of_event, event_type, commentary]
+        );
+        res.status(201).json(newEvent.rows[0]);
+    } catch (err) {
+        console.error('Error adding match event:', err);
+        res.status(500).send('Server Error');
+    }
+};
+
+// Add commentary to a match
+const addCommentary = async (req, res) => {
+    const { id } = req.params;
+    const { minute, commentary_text } = req.body;
+
+    try {
+        const newCommentary = await db.query(
+            'INSERT INTO match_commentary (match_id, minute, commentary_text) VALUES ($1, $2, $3) RETURNING *',
+            [id, minute, commentary_text]
+        );
+        res.status(201).json(newCommentary.rows[0]);
+    } catch (err) {
+        console.error('Error adding commentary:', err);
+        res.status(500).send('Server Error');
+    }
+};
+
+// Get commentary for a match
+const getCommentary = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const { rows } = await db.query('SELECT * FROM match_commentary WHERE match_id = $1 ORDER BY minute', [id]);
+        res.json(rows);
+    } catch (err) {
+        console.error('Error fetching commentary:', err);
+        res.status(500).send('Server Error');
+    }
+};
+
+// Clock management
+const startClock = async (req, res) => {
+    const { id } = req.params;
+    const { half } = req.body; // 'first' or 'second'
+    const column = half === 'first' ? 'first_half_start_time' : 'second_half_start_time';
+
+    try {
+        const { rows } = await db.query(`UPDATE matches SET ${column} = NOW(), status = 'LIVE' WHERE id = $1 RETURNING *`, [id]);
+        res.json(rows[0]);
+    } catch (err) {
+        console.error('Error starting clock:', err);
+        res.status(500).send('Server Error');
+    }
+};
+
+const endHalf = async (req, res) => {
+    const { id } = req.params;
+    const { stoppage_time_seconds } = req.body;
+
+    try {
+        const { rows } = await db.query("UPDATE matches SET status = 'HALF-TIME', stoppage_time_seconds = $1 WHERE id = $2 RETURNING *", [stoppage_time_seconds, id]);
+        res.json(rows[0]);
+    } catch (err) {
+        console.error('Error ending half:', err);
+        res.status(500).send('Server Error');
+    }
+};
+
+const endMatch = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const { rows } = await db.query("UPDATE matches SET status = 'FINISHED', full_time_end_time = NOW() WHERE id = $1 RETURNING *", [id]);
+        res.json(rows[0]);
+    } catch (err) {
+        console.error('Error ending match:', err);
+        res.status(500).send('Server Error');
+    }
+};
+
 module.exports = {
     getMatches,
     getMatchDetails,
@@ -176,5 +267,11 @@ module.exports = {
     updateMatchStats,
     addGoalScorer,
     getPlayersForMatch,
-    addSubstitution
+    addSubstitution,
+    addMatchEvent,
+    addCommentary,
+    getCommentary,
+    startClock,
+    endHalf,
+    endMatch
 };

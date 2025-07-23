@@ -1,0 +1,107 @@
+.league-management-container {
+  background-color: rgba(17, 24, 39, 0.6);
+  padding: 25px;
+  border-radius: 10px;
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.create-button {
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.create-button:hover {
+  background-color: #16a34a;
+}
+
+.form-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: rgba(30, 41, 59, 0.8);
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.form-container h4 {
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+
+.form-input, .form-select {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(51, 65, 85, 0.7);
+  color: #e2e8f0;
+  font-size: 16px;
+}
+
+.submit-button {
+  background-color: #38bdf8;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #0ea5e9;
+}
+
+.leagues-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.leagues-table th, .leagues-table td {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  text-align: left;
+}
+
+.leagues-table th {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+
+.action-button {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 5px;
+  color: white;
+  font-weight: 500;
+}
+
+.edit-button {
+  background-color: #38bdf8;
+}
+
+.delete-button {
+  background-color: #ef4444;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}

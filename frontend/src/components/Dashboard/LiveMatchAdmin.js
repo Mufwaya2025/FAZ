@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './LiveMatchAdmin.css';
 import GoalScorerModal from './GoalScorerModal';
 import SubstitutionModal from './SubstitutionModal';
-import { ArrowLeft, Shield, Star, CornerRightUp, RectangleVertical, RectangleHorizontal, X, Flag, ArrowRightLeft } from 'lucide-react';
+import EventModal from './EventModal';
+import ConfirmationModal from './ConfirmationModal';
+import { ArrowLeft, Shield, Star, CornerRightUp, RectangleVertical, RectangleHorizontal, X, Flag, ArrowRightLeft, Play, Pause, Square } from 'lucide-react';
 
 function LiveMatchAdmin({ matchData, onBack }) {
   const [loading, setLoading] = useState(true);
@@ -12,23 +14,6 @@ function LiveMatchAdmin({ matchData, onBack }) {
   // State for real-time stats
   const [homeScore, setHomeScore] = useState(matchData.home_score || 0);
   const [awayScore, setAwayScore] = useState(matchData.away_score || 0);
-  const [minute, setMinute] = useState(matchData.minute || 0);
-  const [homeShots, setHomeShots] = useState(matchData.home_shots || 0);
-  const [awayShots, setAwayShots] = useState(matchData.away_shots || 0);
-  const [homeShotsOnTarget, setHomeShotsOnTarget] = useState(matchData.home_shots_on_target || 0);
-  const [awayShotsOnTarget, setAwayShotsOnTarget] = useState(matchData.away_shots_on_target || 0);
-  const [homeYellowCards, setHomeYellowCards] = useState(matchData.home_yellow_cards || 0);
-  const [awayYellowCards, setAwayYellowCards] = useState(matchData.away_yellow_cards || 0);
-  const [homeRedCards, setHomeRedCards] = useState(matchData.home_red_cards || 0);
-  const [awayRedCards, setAwayRedCards] = useState(matchData.away_red_cards || 0);
-  const [homeCorners, setHomeCorners] = useState(matchData.home_corners || 0);
-  const [awayCorners, setAwayCorners] = useState(matchData.away_corners || 0);
-  const [homeFouls, setHomeFouls] = useState(matchData.home_fouls || 0);
-  const [awayFouls, setAwayFouls] = useState(matchData.away_fouls || 0);
-  const [homeOffsides, setHomeOffsides] = useState(matchData.home_offsides || 0);
-  const [awayOffsides, setAwayOffsides] = useState(matchData.away_offsides || 0);
-  const [homeSubstitutions, setHomeSubstitutions] = useState(matchData.home_substitutions || 0);
-  const [awaySubstitutions, setAwaySubstitutions] = useState(matchData.away_substitutions || 0);
   
   // Possession Timer State
   const [possessionHolder, setPossessionHolder] = useState(null); // 'home' or 'away'
@@ -39,12 +24,51 @@ function LiveMatchAdmin({ matchData, onBack }) {
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
   const [goalScoringTeam, setGoalScoringTeam] = useState(null);
   const [matchPlayers, setMatchPlayers] = useState([]);
-  const [goalScorers, setGoalScorers] = useState([]);
-
+  
   // Substitution State
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
   const [substitutingTeam, setSubstitutingTeam] = useState(null);
-  const [substitutions, setSubstitutions] = useState([]);
+
+  // Generic Event State
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [eventTeam, setEventTeam] = useState(null);
+  const [eventType, setEventType] = useState(null);
+
+  // Unified Events State
+  const [events, setEvents] = useState([]);
+
+  // Commentary State
+  const [commentaryText, setCommentaryText] = useState('');
+  const [commentaryFeed, setCommentaryFeed] = useState([]);
+
+  // Undo State
+  const [isUndoModalOpen, setIsUndoModalOpen] = useState(false);
+  const [eventToUndo, setEventToUndo] = useState(null);
+
+  // Match Clock State
+  const [matchStatus, setMatchStatus] = useState(matchData.status || 'SCHEDULED');
+  const [minute, setMinute] = useState(matchData.minute || 0);
+  const [stoppageTime, setStoppageTime] = useState(matchData.stoppage_time_seconds || 0);
+  const [firstHalfStartTime, setFirstHalfStartTime] = useState(matchData.first_half_start_time ? new Date(matchData.first_half_start_time) : null);
+  const [secondHalfStartTime, setSecondHalfStartTime] = useState(matchData.second_half_start_time ? new Date(matchData.second_half_start_time) : null);
+
+  // --- DERIVED STATE ---
+  const homeShots = events.filter(e => e.team_id === matchData.home_team_id && (e.type === 'shot_on_target' || e.type === 'shot_off_target')).length;
+  const awayShots = events.filter(e => e.team_id === matchData.away_team_id && (e.type === 'shot_on_target' || e.type === 'shot_off_target')).length;
+  const homeShotsOnTarget = events.filter(e => e.team_id === matchData.home_team_id && e.type === 'shot_on_target').length;
+  const awayShotsOnTarget = events.filter(e => e.team_id === matchData.away_team_id && e.type === 'shot_on_target').length;
+  const homeCorners = events.filter(e => e.team_id === matchData.home_team_id && e.type === 'corner').length;
+  const awayCorners = events.filter(e => e.team_id === matchData.away_team_id && e.type === 'corner').length;
+  const homeFouls = events.filter(e => e.team_id === matchData.home_team_id && e.type === 'foul').length;
+  const awayFouls = events.filter(e => e.team_id === matchData.away_team_id && e.type === 'foul').length;
+  const homeYellowCards = events.filter(e => e.team_id === matchData.home_team_id && e.type === 'yellow_card').length;
+  const awayYellowCards = events.filter(e => e.team_id === matchData.away_team_id && e.type === 'yellow_card').length;
+  const homeRedCards = events.filter(e => e.team_id === matchData.home_team_id && e.type === 'red_card').length;
+  const awayRedCards = events.filter(e => e.team_id === matchData.away_team_id && e.type === 'red_card').length;
+  const homeOffsides = events.filter(e => e.team_id === matchData.home_team_id && e.type === 'offside').length;
+  const awayOffsides = events.filter(e => e.team_id === matchData.away_team_id && e.type === 'offside').length;
+  const homeSubstitutions = events.filter(e => e.team_id === matchData.home_team_id && e.type === 'substitution').length;
+  const awaySubstitutions = events.filter(e => e.team_id === matchData.away_team_id && e.type === 'substitution').length;
 
   // --- EFFECTS ---
 
@@ -57,8 +81,12 @@ function LiveMatchAdmin({ matchData, onBack }) {
         });
         const data = await response.json();
         if (response.ok) {
-          setGoalScorers(data.goal_scorers || []);
-          setSubstitutions(data.substitutions || []);
+          const combinedEvents = [
+            ...(data.goal_scorers || []).map(g => ({ ...g, type: 'goal', minute: g.minute_scored })),
+            ...(data.substitutions || []).map(s => ({ ...s, type: 'substitution', minute: s.minute_substituted })),
+            ...(data.events || []).map(e => ({ ...e, type: e.event_type, minute: e.minute_of_event }))
+          ].sort((a, b) => a.minute - b.minute);
+          setEvents(combinedEvents);
         } else {
           console.error('Failed to fetch match details:', data.msg);
         }
@@ -84,9 +112,24 @@ function LiveMatchAdmin({ matchData, onBack }) {
       }
     };
 
+    const fetchCommentary = async () => {
+      try {
+        const response = await fetch(`http://localhost:5001/api/v1/matches/${matchData.id}/commentary`);
+        const data = await response.json();
+        if (response.ok) {
+          setCommentaryFeed(data);
+        } else {
+          console.error('Failed to fetch commentary:', data.msg);
+        }
+      } catch (error) {
+        console.error('Error fetching commentary:', error);
+      }
+    };
+
     if (matchData.id) {
       fetchPlayers();
       fetchMatchDetails();
+      fetchCommentary();
     }
   }, [matchData.id]);
 
@@ -115,6 +158,24 @@ function LiveMatchAdmin({ matchData, onBack }) {
     return () => clearInterval(saveInterval);
   }, [homePossessionSeconds, awayPossessionSeconds, possessionHolder]);
   
+  useEffect(() => {
+    const clockInterval = setInterval(() => {
+      if (matchStatus === 'LIVE' && firstHalfStartTime) {
+        const now = new Date();
+        const elapsedSeconds = Math.floor((now - firstHalfStartTime) / 1000);
+        const currentMinute = Math.floor(elapsedSeconds / 60) + 1;
+        setMinute(currentMinute > 45 ? 45 : currentMinute);
+      } else if (matchStatus === 'LIVE' && secondHalfStartTime) {
+        const now = new Date();
+        const elapsedSeconds = Math.floor((now - secondHalfStartTime) / 1000);
+        const currentMinute = 45 + Math.floor(elapsedSeconds / 60) + 1;
+        setMinute(currentMinute > 90 ? 90 : currentMinute);
+      }
+    }, 1000);
+
+    return () => clearInterval(clockInterval);
+  }, [matchStatus, firstHalfStartTime, secondHalfStartTime]);
+
   useEffect(() => {
     setLoading(false);
   }, [matchData]);
@@ -174,14 +235,13 @@ function LiveMatchAdmin({ matchData, onBack }) {
       });
 
       if (response.ok) {
-        // Update score locally
+        const newGoal = await response.json();
+        setEvents(prev => [...prev, { ...newGoal, type: 'goal', minute: newGoal.minute_scored }].sort((a, b) => a.minute - b.minute));
         if (goalScoringTeam === 'home') {
           setHomeScore(prev => prev + 1);
         } else {
           setAwayScore(prev => prev + 1);
         }
-        // Refetch goal scorers to display the new goal
-        // (A more optimized approach might just add the new goal to the local state)
       } else {
         const data = await response.json();
         alert(`Failed to add goal scorer: ${data.msg}`);
@@ -195,124 +255,41 @@ function LiveMatchAdmin({ matchData, onBack }) {
     setGoalScoringTeam(null);
   };
 
-  const handleCard = (team, type) => {
-    const statName = team === 'home' ? (type === 'yellow' ? 'homeYellowCards' : 'homeRedCards') : (type === 'yellow' ? 'awayYellowCards' : 'awayRedCards');
-    triggerFlash(statName);
-    if (team === 'home') {
-      if (type === 'yellow') {
-        setHomeYellowCards(prev => {
-          const newCount = prev + 1;
-          updateMatchStats({ home_yellow_cards: newCount });
-          return newCount;
-        });
-      } else {
-        setHomeRedCards(prev => {
-          const newCount = prev + 1;
-          updateMatchStats({ home_red_cards: newCount });
-          return newCount;
-        });
-      }
-    } else {
-      if (type === 'yellow') {
-        setAwayYellowCards(prev => {
-          const newCount = prev + 1;
-          updateMatchStats({ away_yellow_cards: newCount });
-          return newCount;
-        });
-      } else {
-        setAwayRedCards(prev => {
-          const newCount = prev + 1;
-          updateMatchStats({ away_red_cards: newCount });
-          return newCount;
-        });
-      }
-    }
+  const handleEvent = (team, type) => {
+    setEventTeam(team);
+    setEventType(type);
+    setIsEventModalOpen(true);
   };
 
-  const handleShot = (team, onTarget) => {
-    const statName = team === 'home' ? (onTarget ? 'homeShotsOnTarget' : 'homeShots') : (onTarget ? 'awayShotsOnTarget' : 'awayShots');
-    triggerFlash(statName);
-    if (team === 'home') {
-      if (onTarget) {
-        setHomeShotsOnTarget(prev => {
-          const newCount = prev + 1;
-          updateMatchStats({ home_shots_on_target: newCount });
-          return newCount;
-        });
+  const handleEventSubmit = async (playerId) => {
+    const teamId = eventTeam === 'home' ? matchData.home_team_id : matchData.away_team_id;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5001/api/v1/matches/${matchData.id}/events`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token,
+        },
+        body: JSON.stringify({
+          team_id: teamId,
+          player_id: playerId,
+          minute_of_event: minute,
+          event_type: eventType,
+        }),
+      });
+      if (response.ok) {
+        const newEvent = await response.json();
+        setEvents(prev => [...prev, { ...newEvent, type: newEvent.event_type, minute: newEvent.minute_of_event }].sort((a, b) => a.minute - b.minute));
       }
-      setHomeShots(prev => {
-        const newCount = prev + 1;
-        updateMatchStats({ home_shots: newCount });
-        return newCount;
-      });
-    } else {
-      if (onTarget) {
-        setAwayShotsOnTarget(prev => {
-          const newCount = prev + 1;
-          updateMatchStats({ away_shots_on_target: newCount });
-          return newCount;
-        });
-      }
-      setAwayShots(prev => {
-        const newCount = prev + 1;
-        updateMatchStats({ away_shots: newCount });
-        return newCount;
-      });
+    } catch (error) {
+      console.error(`Error adding ${eventType}:`, error);
     }
-  };
 
-  const handleCorner = (team) => {
-    const statName = team === 'home' ? 'homeCorners' : 'awayCorners';
-    triggerFlash(statName);
-    if (team === 'home') {
-      setHomeCorners(prev => {
-        const newCount = prev + 1;
-        updateMatchStats({ home_corners: newCount });
-        return newCount;
-      });
-    } else {
-      setAwayCorners(prev => {
-        const newCount = prev + 1;
-        updateMatchStats({ away_corners: newCount });
-        return newCount;
-      });
-    }
-  };
-
-  const handleFoul = (team) => {
-    const statName = team === 'home' ? 'homeFouls' : 'awayFouls';
-    triggerFlash(statName);
-    if (team === 'home') {
-      setHomeFouls(prev => {
-        const newCount = prev + 1;
-        updateMatchStats({ home_fouls: newCount });
-        return newCount;
-      });
-    } else {
-      setAwayFouls(prev => {
-        const newCount = prev + 1;
-        updateMatchStats({ away_fouls: newCount });
-        return newCount;
-      });
-    }
-  };
-
-  const handleOffside = (team) => {
-    const statName = team === 'home' ? 'homeOffsides' : 'awayOffsides';
-    triggerFlash(statName);
-    if (team === 'home') {
-      setHomeOffsides(prev => {
-        const newCount = prev + 1;
-        updateMatchStats({ home_offsides: newCount });
-        return newCount;
-      });
-    } else {
-      setAwayOffsides(prev => {
-        const newCount = prev + 1;
-        updateMatchStats({ away_offsides: newCount });
-        return newCount;
-      });
-    }
+    setIsEventModalOpen(false);
+    setEventTeam(null);
+    setEventType(null);
   };
 
   const handleSubstitution = (team) => {
@@ -340,11 +317,8 @@ function LiveMatchAdmin({ matchData, onBack }) {
       });
 
       if (response.ok) {
-        if (substitutingTeam === 'home') {
-          setHomeSubstitutions(prev => prev + 1);
-        } else {
-          setAwaySubstitutions(prev => prev + 1);
-        }
+        const newSub = await response.json();
+        setEvents(prev => [...prev, { ...newSub, type: 'substitution', minute: newSub.minute_substituted }].sort((a, b) => a.minute - b.minute));
       } else {
         const data = await response.json();
         alert(`Failed to add substitution: ${data.msg}`);
@@ -358,8 +332,111 @@ function LiveMatchAdmin({ matchData, onBack }) {
     setSubstitutingTeam(null);
   };
 
+  const handleCommentarySubmit = async () => {
+    if (!commentaryText.trim()) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5001/api/v1/matches/${matchData.id}/commentary`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token,
+        },
+        body: JSON.stringify({
+          minute: minute,
+          commentary_text: commentaryText,
+        }),
+      });
+
+      if (response.ok) {
+        const newComment = await response.json();
+        setCommentaryFeed(prev => [...prev, newComment]);
+        setCommentaryText('');
+      } else {
+        const data = await response.json();
+        alert(`Failed to add commentary: ${data.msg}`);
+      }
+    } catch (error) {
+      console.error('Error adding commentary:', error);
+    }
+  };
+
+  const handleUndoEvent = async () => {
+    if (!eventToUndo) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5001/api/v1/events/${eventToUndo.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token,
+        },
+        body: JSON.stringify({ type: eventToUndo.type }),
+      });
+
+      if (response.ok) {
+        const updatedMatch = await response.json();
+        // Update all relevant state with the new data from the backend
+        setHomeScore(updatedMatch.home_score);
+        setAwayScore(updatedMatch.away_score);
+        
+        const combinedEvents = [
+          ...(updatedMatch.goal_scorers || []).map(g => ({ ...g, type: 'goal', minute: g.minute_scored })),
+          ...(updatedMatch.substitutions || []).map(s => ({ ...s, type: 'substitution', minute: s.minute_substituted })),
+          ...(updatedMatch.events || []).map(e => ({ ...e, type: e.event_type, minute: e.minute_of_event }))
+        ].sort((a, b) => a.minute - b.minute);
+        setEvents(combinedEvents);
+      } else {
+        alert('Failed to undo event.');
+      }
+    } catch (error) {
+      console.error('Error undoing event:', error);
+    }
+
+    setIsUndoModalOpen(false);
+    setEventToUndo(null);
+  };
+
   const handlePossessionChange = (team) => {
     setPossessionHolder(team);
+  };
+
+  const handleClockAction = async (action) => {
+    let half;
+    switch(action) {
+      case 'start_first_half':
+        half = 'first';
+        break;
+      case 'start_second_half':
+        half = 'second';
+        break;
+      default:
+        break;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5001/api/v1/matches/${matchData.id}/${action}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token,
+        },
+        body: JSON.stringify({ half, stoppage_time_seconds: stoppageTime }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setMatchStatus(data.status);
+        if (data.first_half_start_time) setFirstHalfStartTime(new Date(data.first_half_start_time));
+        if (data.second_half_start_time) setSecondHalfStartTime(new Date(data.second_half_start_time));
+      } else {
+        alert(`Failed to ${action}: ${data.msg}`);
+      }
+    } catch (error) {
+      console.error(`Error with ${action}:`, error);
+    }
   };
 
   // --- HELPER FUNCTIONS ---
@@ -409,13 +486,6 @@ function LiveMatchAdmin({ matchData, onBack }) {
             <div className={`stat-item ${lastUpdatedStat === 'homeOffsides' ? 'stat-flash' : ''}`}><strong>Offsides:</strong><span>{homeOffsides}</span></div>
             <div className={`stat-item ${lastUpdatedStat === 'homeSubstitutions' ? 'stat-flash' : ''}`}><strong>Subs:</strong><span>{homeSubstitutions}</span></div>
           </div>
-          <div className="goal-scorers-list">
-            {goalScorers.filter(g => g.team_id === matchData.home_team_id).map(goal => (
-              <div key={goal.id} className="goal-scorer-item">
-                <span>{goal.player_name} ({goal.minute_scored}')</span>
-              </div>
-            ))}
-          </div>
         </div>
         <div className="score-container">
           <div className="match-minute">
@@ -438,17 +508,20 @@ function LiveMatchAdmin({ matchData, onBack }) {
             <div className={`stat-item ${lastUpdatedStat === 'awayOffsides' ? 'stat-flash' : ''}`}><strong>Offsides:</strong><span>{awayOffsides}</span></div>
             <div className={`stat-item ${lastUpdatedStat === 'awaySubstitutions' ? 'stat-flash' : ''}`}><strong>Subs:</strong><span>{awaySubstitutions}</span></div>
           </div>
-          <div className="goal-scorers-list">
-            {goalScorers.filter(g => g.team_id === matchData.away_team_id).map(goal => (
-              <div key={goal.id} className="goal-scorer-item">
-                <span>{goal.player_name} ({goal.minute_scored}')</span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
       <div className="match-controls">
+        <div className="control-card">
+          <h4>Match Clock</h4>
+          <div className="clock-controls">
+            <button onClick={() => handleClockAction('start_first_half')} disabled={matchStatus !== 'SCHEDULED'}><Play /> Start 1st Half</button>
+            <button onClick={() => handleClockAction('end_half')} disabled={matchStatus !== 'LIVE'}><Pause /> End Half</button>
+            <button onClick={() => handleClockAction('start_second_half')} disabled={matchStatus !== 'HALF-TIME'}><Play /> Start 2nd Half</button>
+            <button onClick={() => handleClockAction('end_match')} disabled={matchStatus !== 'LIVE'}><Square /> End Match</button>
+            <input type="number" value={stoppageTime} onChange={(e) => setStoppageTime(e.target.value)} placeholder="Stoppage Time" />
+          </div>
+        </div>
         <div className="control-card">
           <h4>Possession</h4>
           <div className="possession-timer-container">
@@ -485,25 +558,25 @@ function LiveMatchAdmin({ matchData, onBack }) {
             <button onClick={() => handleGoal('home')} className="action-button goal-button">
               <Star size={16} /> Goal
             </button>
-            <button onClick={() => handleShot('home', true)} className="action-button">
+            <button onClick={() => handleEvent('home', 'shot_on_target')} className="action-button">
               <Shield size={16} /> Shot On
             </button>
-            <button onClick={() => handleShot('home', false)} className="action-button">
+            <button onClick={() => handleEvent('home', 'shot_off_target')} className="action-button">
               <Shield size={16} /> Shot Off
             </button>
-            <button onClick={() => handleCorner('home')} className="action-button">
+            <button onClick={() => handleEvent('home', 'corner')} className="action-button">
               <CornerRightUp size={16} /> Corner
             </button>
-            <button onClick={() => handleCard('home', 'yellow')} className="action-button yellow-card-button">
+            <button onClick={() => handleEvent('home', 'yellow_card')} className="action-button yellow-card-button">
               <RectangleVertical size={16} /> Yellow
             </button>
-            <button onClick={() => handleCard('home', 'red')} className="action-button red-card-button">
+            <button onClick={() => handleEvent('home', 'red_card')} className="action-button red-card-button">
               <RectangleHorizontal size={16} /> Red
             </button>
-            <button onClick={() => handleFoul('home')} className="action-button">
+            <button onClick={() => handleEvent('home', 'foul')} className="action-button">
               <X size={16} /> Foul
             </button>
-            <button onClick={() => handleOffside('home')} className="action-button">
+            <button onClick={() => handleEvent('home', 'offside')} className="action-button">
               <Flag size={16} /> Offside
             </button>
             <button onClick={() => handleSubstitution('home')} className="action-button">
@@ -520,31 +593,52 @@ function LiveMatchAdmin({ matchData, onBack }) {
             <button onClick={() => handleGoal('away')} className="action-button goal-button">
               <Star size={16} /> Goal
             </button>
-            <button onClick={() => handleShot('away', true)} className="action-button">
+            <button onClick={() => handleEvent('away', 'shot_on_target')} className="action-button">
               <Shield size={16} /> Shot On
             </button>
-            <button onClick={() => handleShot('away', false)} className="action-button">
+            <button onClick={() => handleEvent('away', 'shot_off_target')} className="action-button">
               <Shield size={16} /> Shot Off
             </button>
-            <button onClick={() => handleCorner('away')} className="action-button">
+            <button onClick={() => handleEvent('away', 'corner')} className="action-button">
               <CornerRightUp size={16} /> Corner
             </button>
-            <button onClick={() => handleCard('away', 'yellow')} className="action-button yellow-card-button">
+            <button onClick={() => handleEvent('away', 'yellow_card')} className="action-button yellow-card-button">
               <RectangleVertical size={16} /> Yellow
             </button>
-            <button onClick={() => handleCard('away', 'red')} className="action-button red-card-button">
+            <button onClick={() => handleEvent('away', 'red_card')} className="action-button red-card-button">
               <RectangleHorizontal size={16} /> Red
             </button>
-            <button onClick={() => handleFoul('away')} className="action-button">
+            <button onClick={() => handleEvent('away', 'foul')} className="action-button">
               <X size={16} /> Foul
             </button>
-            <button onClick={() => handleOffside('away')} className="action-button">
+            <button onClick={() => handleEvent('away', 'offside')} className="action-button">
               <Flag size={16} /> Offside
             </button>
             <button onClick={() => handleSubstitution('away')} className="action-button">
               <ArrowRightLeft size={16} /> Substitution
             </button>
           </div>
+        </div>
+      </div>
+
+      <div className="commentary-container">
+        <h3>Live Commentary</h3>
+        <div className="commentary-feed">
+          {commentaryFeed.map(comment => (
+            <div key={comment.id} className="commentary-item">
+              <strong>{comment.minute}'</strong>
+              <p>{comment.commentary_text}</p>
+            </div>
+          ))}
+        </div>
+        <div className="commentary-input-area">
+          <input 
+            type="text"
+            value={commentaryText}
+            onChange={(e) => setCommentaryText(e.target.value)}
+            placeholder="Add a new commentary event..."
+          />
+          <button onClick={handleCommentarySubmit}>Post</button>
         </div>
       </div>
 
@@ -564,33 +658,43 @@ function LiveMatchAdmin({ matchData, onBack }) {
         onSubmit={handleSubstitutionSubmit}
       />
 
+      <EventModal
+        isOpen={isEventModalOpen}
+        onClose={() => setIsEventModalOpen(false)}
+        teamName={eventTeam === 'home' ? matchData.home_team_name : matchData.away_team_name}
+        players={matchPlayers.filter(p => p.team_id === (eventTeam === 'home' ? matchData.home_team_id : matchData.away_team_id))}
+        eventType={eventType}
+        onSubmit={handleEventSubmit}
+      />
+
+      <ConfirmationModal
+        isOpen={isUndoModalOpen}
+        onClose={() => setIsUndoModalOpen(false)}
+        onConfirm={handleUndoEvent}
+        title="Undo Event"
+        message="Are you sure you want to undo this event? This action cannot be reversed."
+      />
+
       <div className="substitution-history-container">
-        <h3>Substitution History</h3>
-        <div className="substitution-history-columns">
-          <div className="substitution-history-column">
-            <h4>{matchData.home_team_name}</h4>
-            <ul>
-              {substitutions.filter(s => s.team_id === matchData.home_team_id).map(sub => (
-                <li key={sub.id}>
-                  <span>{sub.minute_substituted}'</span>
-                  <span className="player-out">{sub.player_out_name}</span>
-                  <span className="player-in">{sub.player_in_name}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="substitution-history-column">
-            <h4>{matchData.away_team_name}</h4>
-            <ul>
-              {substitutions.filter(s => s.team_id === matchData.away_team_id).map(sub => (
-                <li key={sub.id}>
-                  <span>{sub.minute_substituted}'</span>
-                  <span className="player-out">{sub.player_out_name}</span>
-                  <span className="player-in">{sub.player_in_name}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <h3>Match Events</h3>
+        <div className="events-feed">
+          {events.map(event => (
+            <div key={`${event.type}-${event.id}`} className={`event-item-admin ${event.team_id === matchData.home_team_id ? 'home' : 'away'}`} onClick={() => { setEventToUndo(event); setIsUndoModalOpen(true); }}>
+              <div className="event-icon-admin">
+                {event.type === 'goal' && <Star size={18} />}
+                {event.type === 'substitution' && <ArrowRightLeft size={18} />}
+                {event.type === 'yellow_card' && <RectangleVertical size={18} />}
+                {event.type === 'red_card' && <RectangleHorizontal size={18} />}
+              </div>
+              <div className="event-minute-admin">{event.minute}'</div>
+              <div className="event-details-admin">
+                {event.type === 'goal' && <span>Goal for {event.team_id === matchData.home_team_id ? matchData.home_team_name : matchData.away_team_name}! <strong>{event.player_name}</strong></span>}
+                {event.type === 'substitution' && <span><span className="player-out">{event.player_out_name}</span> → <span className="player-in">{event.player_in_name}</span> ({event.team_id === matchData.home_team_id ? matchData.home_team_name : matchData.away_team_name})</span>}
+                {event.type === 'yellow_card' && <span>Yellow Card for <strong>{event.player_name}</strong> ({event.team_id === matchData.home_team_id ? matchData.home_team_name : matchData.away_team_name})</span>}
+                {event.type === 'red_card' && <span>Red Card for <strong>{event.player_name}</strong> ({event.team_id === matchData.home_team_id ? matchData.home_team_name : matchData.away_team_name})</span>}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

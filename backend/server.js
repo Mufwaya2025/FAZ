@@ -241,6 +241,10 @@ app.use('/api/v1/staff', staffRoutes);
 const newsRoutes = require('./src/routes/api/v1/news');
 app.use('/api/v1/news', newsRoutes);
 
+// Event Routes
+const eventRoutes = require('./src/routes/api/v1/events');
+app.use('/api/v1/events', eventRoutes);
+
 // Data Routes
 const dataRoutes = require('./src/routes/api/dataRoutes.js');
 app.use('/api/v1/data', dataRoutes);

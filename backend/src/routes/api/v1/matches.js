@@ -31,4 +31,16 @@ router.get('/:id/players', auth, authorize(['super_admin', 'match_day_operator',
 // Add a substitution to a match
 router.post('/:id/substitutions', auth, authorize(['super_admin', 'match_day_operator', 'editor']), matchController.addSubstitution);
 
+// Add a generic match event
+router.post('/:id/events', auth, authorize(['super_admin', 'match_day_operator', 'editor']), matchController.addMatchEvent);
+
+// Commentary routes
+router.post('/:id/commentary', auth, authorize(['super_admin', 'match_day_operator', 'editor']), matchController.addCommentary);
+router.get('/:id/commentary', matchController.getCommentary);
+
+// Clock management routes
+router.post('/:id/start-clock', auth, authorize(['super_admin', 'match_day_operator', 'editor']), matchController.startClock);
+router.post('/:id/end-half', auth, authorize(['super_admin', 'match_day_operator', 'editor']), matchController.endHalf);
+router.post('/:id/end-match', auth, authorize(['super_admin', 'match_day_operator', 'editor']), matchController.endMatch);
+
 module.exports = router;

@@ -1,0 +1,50 @@
+.score-card-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(17, 24, 39, 0.6);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.score-card-container:hover {
+  background-color: rgba(30, 41, 59, 0.8);
+  transform: translateY(-2px);
+}
+
+.team-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 40%;
+}
+
+.team-info img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.team-info span {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.match-score-container {
+  text-align: center;
+}
+
+.score {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.minute {
+  display: block;
+  font-size: 14px;
+  color: #94a3b8;
+}
