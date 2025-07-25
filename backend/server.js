@@ -6,6 +6,8 @@ const cors = require('./src/middleware/cors');
 const logger = require('./src/utils/logger');
 const mockData = require('./mock_data.js');
 const upload = require('./src/middleware/upload'); // Import upload middleware
+const multer = require('multer');
+const uploadAds = multer(); // Create a multer instance for parsing form-data
 
 const { matchController, newsController, leagueController, userController, teamController, playerController, staffController } = require('./src/controllers');
 const matchApi = require('./src/api/matchApi');
@@ -245,6 +247,10 @@ app.use('/api/v1/news', newsRoutes);
 const eventRoutes = require('./src/routes/api/v1/events');
 app.use('/api/v1/events', eventRoutes);
 
+// Ads Routes
+const adsRoutes = require('./src/routes/api/v1/ads');
+app.use('/editor/ads', uploadAds.none(), adsRoutes);
+
 // Clock Routes
 const clockRoutes = require('./src/routes/api/v1/clock')(io);
 app.use('/api/v1/matches', clockRoutes);
@@ -252,6 +258,10 @@ app.use('/api/v1/matches', clockRoutes);
 // Data Routes
 const dataRoutes = require('./src/routes/api/dataRoutes.js');
 app.use('/api/v1/data', dataRoutes);
+
+// Editor API Routes
+const editorRoutes = require('./src/api/editor/editor');
+app.use('/editor', editorRoutes);
 
 // Admin API Routes (Match Update)
 app.put('/api/v1/matches/:id', auth, authorize(['match_day_operator', 'super_admin']), matchApi.updateMatch);

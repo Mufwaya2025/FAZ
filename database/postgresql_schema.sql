@@ -78,3 +78,19 @@ CREATE TABLE staff (
     nationality VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE ads (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    ad_type VARCHAR(50) NOT NULL, -- 'image', 'google_adsense', 'custom_script'
+    image_url VARCHAR(255),
+    target_url VARCHAR(255),
+    ad_unit_id VARCHAR(255),
+    slot_id VARCHAR(255),
+    script_content TEXT,
+    placement VARCHAR(50), -- 'head', 'body_start', 'body_end'
+    start_date TIMESTAMP,
+    end_date TIMESTAMP,
+    placeholder_id VARCHAR(50) NOT NULL, -- e.g., 'promo-card', 'ad-placeholder'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

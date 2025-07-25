@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import MatchdayOperatorView from './components/MatchdayOperatorView';
 import AdminDashboardView from './components/AdminDashboardView';
 import PublicView from './components/PublicView';
+import EditorDashboard from './components/editor/EditorDashboard';
 import './App.css';
 
 import io from 'socket.io-client';
@@ -31,6 +32,12 @@ function App() {
   const [editedUserEmail, setEditedUserEmail] = useState('');
   const [editedUserRole, setEditedUserRole] = useState('');
   const [matchStats, setMatchStats] = useState({});
+  const [ads, setAds] = useState([]); // New state for ads
+  const adPlaceholders = [
+    { placement: 'promo-card', name: 'Promo Card Area' },
+    { placement: 'ad-placeholder', name: 'Main Ad Area' },
+    // Add more as needed
+  ];
 
   const handleLogin = async () => {
     try {
@@ -232,6 +239,8 @@ function App() {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
+      console.log('checkAuth - token from localStorage:', token);
+      console.log('checkAuth - user from localStorage:', storedUser);
 
       if (token && storedUser) {
         try {
@@ -275,6 +284,31 @@ function App() {
 
     checkAuth();
 
+    const fetchAds = async () => {
+      const token = localStorage.getItem('token');
+      console.log('fetchAds - token:', token);
+      try {
+        const response = await fetch('http://localhost:5001/editor/ads', {
+          headers: {
+            'x-auth-token': token,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setAds(data);
+          console.log('Fetched ads:', data);
+        } else {
+          console.error('Failed to fetch ads:', data.msg);
+        }
+      } catch (error) {
+        console.error('Error fetching ads:', error);
+      }
+    };
+
+    if (localStorage.getItem('token')) {
+      fetchAds();
+    }
+
     console.log('App.jsx - Current user:', user);
     console.log('App.jsx - User role:', user?.role);
     if (user && user.role === 'super_admin' && activeAdminTab === 'users') {
@@ -291,7 +325,9 @@ function App() {
   }, [user, activeAdminTab, navigate]);
 
   const renderContent = () => {
-    if (user && (user.role === 'super_admin' || user.role === 'match_day_operator')) {
+    if (user && user.role === 'editor') {
+      return <EditorDashboard adPlaceholders={adPlaceholders} />;
+    } else if (user && (user.role === 'super_admin' || user.role === 'match_day_operator')) {
       return (
         <AdminDashboardView
           user={user}
@@ -420,17 +456,49 @@ function App() {
         <div className="right-sidebar">
           {/* FIFA Club World Cup Card */}
           <div className="promo-card">
-            <h3>
-              FIFA CLUB WORLD CUP
-            </h3>
-            <p>
-              EVERY GAME FREE ON DAZN
-            </p>
+            {ads.filter(ad => ad.placement && ad.placement.trim() === 'promo-card').slice(0, 1).map(ad => (
+              ad.type === 'image' ? (
+                <a href={ad.target_url} target="_blank" rel="noopener noreferrer">
+                  <img src={`http://localhost:5001${ad.image_url}`} alt={ad.name} style={{ width: '100%', height: 'auto' }} />
+                </a>
+              ) : ad.type === 'google_adsense' ? (
+                <div dangerouslySetInnerHTML={{ __html: `<ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="${ad.ad_unit_id}"
+                     data-ad-slot="${ad.slot_id}"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>` }} />
+              ) : ad.ad_type === 'script' ? (
+                <div id={`custom-ad-container-${ad.id}`} dangerouslySetInnerHTML={{ __html: ad.script_content }} />
+              ) : null
+            ))}
+            {ads.filter(ad => ad.placement && ad.placement.trim() === 'promo-card').length === 0 && (
+              <>
+                <h3>FIFA CLUB WORLD CUP</h3>
+                <p>EVERY GAME FREE ON DAZN</p>
+              </>
+            )}
           </div>
 
           {/* Advertisement Placeholder */}
           <div className="ad-placeholder">
-            Advertisement Placeholder
+            {ads.filter(ad => ad.placement && ad.placement.trim() === 'ad-placeholder').slice(0, 1).map(ad => (
+              ad.type === 'image' ? (
+                <a href={ad.target_url} target="_blank" rel="noopener noreferrer">
+                  <img src={`http://localhost:5001${ad.image_url}`} alt={ad.name} style={{ width: '100%', height: 'auto' }} />
+                </a>
+              ) : ad.type === 'google_adsense' ? (
+                <div dangerouslySetInnerHTML={{ __html: `<ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="${ad.ad_unit_id}"
+                     data-ad-slot="${ad.slot_id}"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>` }} />
+              ) : ad.ad_type === 'script' ? (
+                <div id={`custom-ad-container-${ad.id}`} dangerouslySetInnerHTML={{ __html: ad.script_content }} />
+              ) : null
+            ))}
+            {ads.filter(ad => ad.placement && ad.placement.trim() === 'ad-placeholder').length === 0 && (
+              <>Advertisement Placeholder</>
+            )}
           </div>
         </div>
       </div>

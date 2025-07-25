@@ -1,0 +1,28 @@
+.news-article-container {
+  background-color: var(--background-secondary);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  color: var(--text-primary);
+}
+
+.back-button {
+  background-color: var(--background-tertiary);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  margin-bottom: var(--spacing-lg);
+  transition: background-color 0.3s;
+}
+
+.article-date {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.article-content {
+  line-height: 1.6;
+}

@@ -1,0 +1,50 @@
+.staff-management-container {
+  background-color: var(--background-secondary);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  color: var(--text-primary);
+}
+
+.sub-tab-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spacing-lg);
+}
+
+.staff-table th, .staff-table td {
+  border: 1px solid var(--background-tertiary);
+  padding: var(--spacing-sm);
+  text-align: left;
+}
+
+.staff-table th {
+  background-color: var(--background-tertiary);
+}
+
+.action-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.action-button {
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  color: white;
+  font-weight: var(--font-weight-medium);
+}
+
+.edit-button {
+  background-color: var(--primary-color);
+}
+
+.delete-button {
+  background-color: var(--danger-color);
+}

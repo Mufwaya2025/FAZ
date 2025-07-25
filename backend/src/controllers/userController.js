@@ -34,7 +34,7 @@ const registerUser = async (req, res) => {
         jwt.sign(
             payload,
             process.env.JWT_SECRET || 'supersecretjwtkey', // Use environment variable for secret
-            { expiresIn: '1h' },
+            { expiresIn: '24h' },
             (err, token) => {
                 if (err) throw err;
                 res.status(201).json({ token, user: newUser.rows[0] });
@@ -75,7 +75,7 @@ const loginUser = async (req, res) => {
         jwt.sign(
             payload,
             process.env.JWT_SECRET || 'supersecretjwtkey', // Use environment variable for secret
-            { expiresIn: '1h' },
+            { expiresIn: '24h' },
             (err, token) => {
                 if (err) throw err;
                 res.json({ token, user: user.rows[0] });

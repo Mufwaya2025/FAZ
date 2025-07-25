@@ -206,6 +206,7 @@
   border-radius: 12px;
   margin-bottom: 20px;
   text-align: center;
+  min-height: 150px; /* Added min-height */
 }
 
 .promo-card h3 {
@@ -239,4 +240,152 @@
   color: #95a5a6;
   font-size: 12px;
   text-align: center;
+}
+
+/* Editor Dashboard Styles */
+.editor-dashboard {
+  background-color: #2c3e50;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.editor-dashboard h1 {
+  color: #ecf0f1;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.editor-dashboard nav {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #34495e;
+}
+
+.editor-dashboard nav button {
+  background-color: transparent;
+  border: none;
+  color: #ecf0f1;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.editor-dashboard nav button:hover {
+  background-color: #34495e;
+}
+
+.editor-dashboard nav button.active {
+  border-bottom: 2px solid #3498db;
+  font-weight: bold;
+}
+
+.dashboard-content {
+  background-color: #34495e;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+/* Form Styles */
+.content-form, .media-upload, .ad-management {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.content-form h2, .media-upload h2, .ad-management h2 {
+  color: #ecf0f1;
+  margin-bottom: 15px;
+  font-size: 20px;
+}
+
+.content-form div, .media-upload div, .ad-management div {
+  display: flex;
+  flex-direction: column;
+}
+
+.content-form label, .media-upload label, .ad-management label {
+  color: #bdc3c7;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.content-form input[type="text"],
+.content-form input[type="url"],
+.content-form input[type="date"],
+.content-form textarea,
+.media-upload input[type="text"],
+.media-upload input[type="file"],
+.ad-management input[type="text"],
+.ad-management input[type="url"],
+.ad-management input[type="date"],
+.ad-management textarea,
+.ad-management select {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #4a5568;
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  font-size: 16px;
+}
+
+.content-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.content-form button, .media-upload button, .ad-management button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.content-form button:hover, .media-upload button:hover, .ad-management button:hover {
+  background-color: #2980b9;
+}
+
+/* Responsive Ad Styling */
+.promo-card > div,
+.ad-placeholder > div {
+  width: 100%;
+  height: 100%; /* Re-added height: 100% */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: auto; /* Add scroll if content overflows */
+}
+
+.promo-card > div > *,
+.ad-placeholder > div > * {
+  max-width: 100%;
+  box-sizing: border-box;
+  width: 100%; /* Ensure direct children of the ad container take full width */
+  color: #333; /* Set a darker color for ad content */
+  flex: 1; /* Allow content to grow and shrink */
+  display: flex; /* Make inner content a flex container */
+  flex-direction: column; /* Stack content vertically */
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+}
+
+.promo-card img,
+.ad-placeholder img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain; /* Maintain aspect ratio and fit within content box */
+}
+
+.promo-card button,
+.ad-placeholder button {
+  max-width: 100%;
+  box-sizing: border-box;
 }

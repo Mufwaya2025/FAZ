@@ -48,18 +48,12 @@ function PublicView() {
     };
     const fetchLeagues = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5001/api/v1/leagues', {
-          headers: {
-            'x-auth-token': token,
-          },
-        });
+        const response = await fetch('http://localhost:5001/api/v1/leagues');
         const data = await response.json();
         if (response.ok) {
           setLeagues(data);
           if (data.length > 0) {
             setSelectedLeague(data[0].id);
-            console.log("Selected league ID in PublicView:", data[0].id); // Debugging line
           }
         } else {
           console.error('Failed to fetch leagues:', data.msg);
@@ -131,8 +125,10 @@ function PublicView() {
 
   const filteredMatches = matches.filter(match => {
     const matchDate = new Date(match.match_date);
-    const isToday = matchDate.toDateString() === currentDate.toDateString();
-    if (!isToday) return false;
+    const isSameDay = matchDate.getFullYear() === currentDate.getFullYear() &&
+                      matchDate.getMonth() === currentDate.getMonth() &&
+                      matchDate.getDate() === currentDate.getDate();
+    if (!isSameDay) return false;
     if (activeFilter === 'ALL') return true;
     return match.status === activeFilter;
   });

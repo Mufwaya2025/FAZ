@@ -1,25 +1,25 @@
 .confirm-modal-content {
-  background: rgba(30, 41, 59, 0.8);
-  padding: 30px;
-  border-radius: 12px;
-  color: #e2e8f0;
+  background: var(--background-secondary);
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius-lg);
+  color: var(--text-primary);
   width: 100%;
   max-width: 450px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: var(--spacing-md);
+  border: 1px solid var(--background-tertiary);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   animation: slideIn 0.4s ease-out;
 }
 
 .modal-message {
-  font-size: 16px;
+  font-size: var(--font-size-lg);
   text-align: center;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 .confirm-button-danger {
-  background-color: #e53e3e;
-  color: #fff;
+  background-color: var(--danger-color);
+  color: var(--text-primary);
 }

@@ -1,5 +1,24 @@
 const db = require('../utils/database');
 
+const getMatchEvents = async (req, res) => {
+    try {
+        const { matchId } = req.query;
+        let query = 'SELECT * FROM match_events';
+        const params = [];
+
+        if (matchId) {
+            query += ' WHERE match_id = $1';
+            params.push(matchId);
+        }
+
+        const { rows } = await db.query(query, params);
+        res.json(rows);
+    } catch (err) {
+        console.error('Error fetching match events:', err.message);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
+    }
+};
+
 const undoMatchEvent = async (req, res) => {
     const { id } = req.params;
     const { type } = req.body;
@@ -69,4 +88,5 @@ const undoMatchEvent = async (req, res) => {
 
 module.exports = {
     undoMatchEvent,
+    getMatchEvents,
 };
